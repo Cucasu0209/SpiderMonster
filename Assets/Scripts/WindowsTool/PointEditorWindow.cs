@@ -18,9 +18,13 @@ public class PointEditorWindow : EditorWindow
     {
         EditorGUILayout.Space();
         var buttonStyle = new GUIStyle(GUI.skin.button) { fontStyle = FontStyle.Bold, fixedHeight = 30 };
-        if (GUILayout.Button("Respawn point", buttonStyle))
+        if (GUILayout.Button("Respawn point Random", buttonStyle))
         {
-            EventDispatcher.Publish(Events.RespawnPoint);
+            EventDispatcher.Publish(Events.RespawnPoint, 0);
+        }
+        if (GUILayout.Button("Respawn point Grid", buttonStyle))
+        {
+            EventDispatcher.Publish(Events.RespawnPoint, 1);
         }
     }
 

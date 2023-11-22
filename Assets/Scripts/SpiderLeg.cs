@@ -10,11 +10,18 @@ public class SpiderLeg : MonoBehaviour
     public void Draw(Vector2 start, Vector2 end, Vector2 dir)
     {
         float destination = Vector2.Distance(start, end);
-        dir = end - start;
-        Vector2 dirR = new Vector2(-dir.y, dir.x);
+        Vector2 dire = end - start;
+        Vector2 dirR = new Vector2(-dire.y, dire.x);
 
+        //test1
         Vector2 t1 = (start + (end - start) / 6) + dirR * destination / 12;
         Vector2 t2 = (start + (end - start) * 5 / 6) - dirR * destination / 6;
+
+        //test2
+        t1 = (start + (end - start) / 6) + dirR * destination / 12;
+        t2 = end - dir.normalized * Mathf.Clamp(4 / (destination * destination), 0, destination * 2 / 3);
+
+
 
         float PointCount = Mathf.RoundToInt(destination / 0.05f);
         string logst = "";
@@ -30,7 +37,6 @@ public class SpiderLeg : MonoBehaviour
             logst += a + " " + b + c + a1 + b1 + a2 + "\n";
             point[i - 1] = a2;
         }
-        Debug.Log(point.Length + " " + logst);
         line.positionCount = (int)PointCount;
         line.SetPositions(point);
 
