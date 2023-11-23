@@ -7,7 +7,7 @@ public class PointSpawner : MonoBehaviour
 {
     public Point DotPrefab;
     private List<Point> points = new List<Point>();
-
+    List<Point> CacheNearPoint = new List<Point>();
     private void Awake()
     {
         EventDispatcher.Addlistener<int>(ScriptName.Spanwer, Events.RespawnPoint, SpawnPointsOverScreen);
@@ -43,12 +43,12 @@ public class PointSpawner : MonoBehaviour
         float minY = center.y - size.y / 2;
         float maxY = center.y + size.y / 2;
 
-
-        for (int i = 0; i < (maxX - minX) / 0.5f; i++)
+        float delta = 0.6f;
+        for (int i = 0; i < (maxX - minX) / delta; i++)
         {
-            for (int j = 0; j < (maxY - minY) / 0.5f; j++)
+            for (int j = 0; j < (maxY - minY) / delta; j++)
             {
-                result.Add(new Vector2(minX + i * 0.5f, minY + j * 0.5f));
+                result.Add(new Vector2(minX + i * delta, minY + j * delta));
             }
         }
 
@@ -59,13 +59,13 @@ public class PointSpawner : MonoBehaviour
     {
         if (index == 0)
         {
-            List<Vector2> positions = GetPointPos(Camera.main.transform.position, (Camera.main.transform.position - Camera.main.ScreenToWorldPoint(Vector3.zero)) * 2.4f, 200);
-            Spawn(positions);
+            List<Vector2> positions = GetPointPos(Camera.main.transform.position, (Camera.main.transform.position - Camera.main.ScreenToWorldPoint(Vector3.zero)) * 2.4f, 250);
+            Spawn1(positions);
         }
         if (index == 1)
         {
             List<Vector2> positions = GetPointPosinGrid(Camera.main.transform.position, (Camera.main.transform.position - Camera.main.ScreenToWorldPoint(Vector3.zero)) * 2.4f);
-            Spawn(positions);
+            Spawn1(positions);
         }
     }
 
@@ -92,11 +92,47 @@ public class PointSpawner : MonoBehaviour
         }
     }
 
-    private List<Point> GetPoins() => points.Where(p => p.gameObject.activeInHierarchy).ToList();
-
-    private List<Point> GetNearPoints(Vector3 center, float distance)
+    public void Spawn1(List<Vector2> positions)
     {
-        return points.Where(p => p.gameObject.activeInHierarchy && Vector2.Distance(center, p.transform.position) < distance).ToList();
+        foreach (var point in points)
+        {
+            Destroy(point.gameObject);
+        }
+
+        points.Clear();
+        foreach (var pos in positions)
+        {
+            Point a = Instantiate(DotPrefab, pos, Quaternion.identity);
+            points.Add(a);
+            a.transform.parent = GameObject.Find("Points").transform;
+        }
     }
 
+    private List<Point> GetPoins()
+    {
+        return points;
+    }
+
+
+    float lastTimeGetNearPoints = -10;
+    private List<Point> GetNearPoints(Vector3 center, float distance)
+    {
+        //if (Time.time - lastTimeGetNearPoints > 0.1f)
+        //{
+        //    lastTimeGetNearPoints = Time.time;
+        CacheNearPoint.Clear();
+        foreach (var point in points)
+        {
+            if (Vector2.Distance(center, point.transform.position) < distance && point.gameObject.activeInHierarchy)
+                CacheNearPoint.Add(point);
+        }
+        //}
+
+        return CacheNearPoint;
+        //return points.Where(p => p.gameObject.activeInHierarchy && Vector2.Distance(center, p.transform.position) < distance).ToList();
+    }
+    private void Update()
+    {
+
+    }
 }
